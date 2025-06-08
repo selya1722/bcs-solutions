@@ -4,9 +4,14 @@ import nodemailer from "nodemailer";
 export async function POST(req: Request) {
   const { name, email, phone, message, serviceType } = await req.json();
 
-  // Setup Gmail transporter (same as contact form)
+  console.log('EMAIL_USER:', process.env.EMAIL_USER);
+  console.log('EMAIL_PASS set:', !!process.env.EMAIL_PASS);
+
+  // Setup Gmail transporter using SMTP explicitly
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // use TLS
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -44,8 +49,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ message: "Quote request sent successfully!" }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending quote emails:", error);
-    return NextResponse.json({ message: "Failed to send quote request." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to send quote request.", error: error.message },
+      { status: 500 }
+    );
   }
 }
