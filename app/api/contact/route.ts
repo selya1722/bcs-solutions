@@ -1,57 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-interface ContactRequestBody {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-}
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { name, email, phone, message } = body;
 
-export async function POST(req: NextRequest) {
+  if (!name || !email || !message) {
+    return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+  }
+
   try {
-    const body = await req.json();
-    const { name, email, phone, message } = body as ContactRequestBody;
-
-    // Validate input
-    if (!name || !email || !message) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Create Nodemailer transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
       },
     });
 
-    // Email content
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'bcssolutions12@gmail.com',
-      replyTo: email,
+    //  Send message to you (the site owner)
+    await transporter.sendMail({
+      from: `"${name}" <${email}>`,
+      to: process.env.GMAIL_USER,
       subject: `New Contact Message from ${name}`,
-      text: `
-        Name: ${name}
-        Email: ${email}
-        Phone: ${phone || 'Not provided'}
-        Message: ${message}
-      `,
       html: `
-        <h2>New Contact Message</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
-        <p><strong>Message:</strong> ${message}</p>
+        <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+        <p><strong>Message:</strong><br/>${message}</p>
       `,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
-    return NextResponse.json({ message: 'Message sent successfully' }, { status: 200 });
+    //  Send confirmation to the sender
+    await transporter.sendMail({
+      from: `"BC Security Solutions" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: "We've received your message!",
+      html: `
+        <p>Hi ${name},</p>
+        <p>Thank you for contacting <strong>BC Security Solutions</strong>. We've received your message and will get back to you shortly.</p>
+        <p><em>Your message:</em><br/>${message}</p>
+        <br/>
+        <p>Best regards,<br/>BC Security Solutions Team</p>
+      `,
+    });
+
+    return NextResponse.json({ message: 'Email sent successfully' }, { status: 200 });
   } catch (error) {
-    console.error('Error sending email:', error);
-    return NextResponse.json({ message: 'Failed to send message' }, { status: 500 });
+    console.error("Email sending error:", error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

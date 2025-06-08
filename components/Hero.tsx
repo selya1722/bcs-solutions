@@ -27,11 +27,12 @@ const Hero: React.FC = () => {
           <a
             href="#get-a-quote"
             onClick={(e) => scrollToSection("get-a-quote", e)}
-            className="bg-primary-yellow text-primary-dark px-6 py-3 rounded-md font-semibold transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl hover:ring-2 hover:ring-white-400 active:scale-95"
+            className="bg-[var(--primary-yellow)] text-[var(--primary-dark)] px-6 py-3 rounded-md font-semibold transition-all duration-500 ease-in-out transform hover:scale-105 hover:shadow-xl hover:ring-2 hover:ring-white/40 active:scale-95 cursor-pointer"
+            role="button"
+            aria-label="Get a Free Quote"
           >
             Get a Free Quote
           </a>
-
           {/* Contact Us Button */}
           <a
             href="#contact-us"

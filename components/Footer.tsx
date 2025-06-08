@@ -11,7 +11,6 @@ const Footer = () => {
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
-
   return (
     <footer className="bg-dark-blue text-white py-8 md:py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,7 +39,7 @@ const Footer = () => {
                   <a
                     href={`#${id}`}
                     onClick={(e) => scrollToSection(id, e)}
-                    className="hover:text-orange-400 transition-colors w-full text-left"
+                    className="hover:text-yellow-400 transition-colors w-full text-left"
                   >
                     {label}
                   </a>
@@ -56,9 +55,9 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Email Address"
-                className="w-full sm:flex-1 px-4 py-2 rounded-l-md sm:rounded-r-none text-black focus:outline-none mb-2 sm:mb-0"
+                className="w-full sm:flex-1 px-4 py-2 rounded-l-md sm:rounded-r-none text-black bg-blue-100 focus:outline-none mb-2 sm:mb-0"
               />
-              <button className="w-full sm:w-auto bg-orange-500 text-white px-4 py-2 rounded-md sm:rounded-l-none hover:bg-orange-600 transition-colors">
+              <button className="w-full sm:w-auto bg-[var(--primary-yellow)] text-black px-4 py-2 rounded-md sm:rounded-l-none hover:bg-orange-500 transition-colors">
                 Send
               </button>
             </div>

@@ -1,60 +1,51 @@
-import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 
-interface QuoteRequestBody {
-  name: string;
-  email: string;
-  phone: string;
-  serviceType: string;
-  message: string;
-}
+export async function POST(req: Request) {
+  const { name, email, phone, message, serviceType } = await req.json();
 
-export async function POST(req: NextRequest) {
+  // Setup Gmail transporter (same as contact form)
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
   try {
-    const body = await req.json();
-    const { name, email, phone, serviceType, message } = body as QuoteRequestBody;
-
-    // Validate input
-    if (!name || !email || !serviceType || !message) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Create Nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    // Email content
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'bcssolutions12@gmail.com',
-      replyTo: email,
+    // 1. Send mail to yourself
+    await transporter.sendMail({
+      from: `"Quote Form" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
       subject: `New Quote Request from ${name}`,
-      text: `
-        Name: ${name}
-        Email: ${email}
-        Phone: ${phone || 'Not provided'}
-        Service Type: ${serviceType}
-        Message: ${message}
-      `,
       html: `
-        <h2>New Quote Request</h2>
+        <h2>Quote Request</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
         <p><strong>Service Type:</strong> ${serviceType}</p>
-        <p><strong>Message:</strong> ${message}</p>
+        <p><strong>Message:</strong><br>${message}</p>
       `,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
-    return NextResponse.json({ message: 'Quote request sent successfully' }, { status: 200 });
+    // 2. Send confirmation email to sender
+    await transporter.sendMail({
+      from: `"Your Company" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "We’ve received your quote request",
+      html: `
+        <p>Hi ${name},</p>
+        <p>Thank you for your interest in our <strong>${serviceType}</strong> services.</p>
+        <p>We’ve received your quote request and will get back to you shortly.</p>
+        <br />
+        <p>Best regards,<br>Your Company Name</p>
+      `,
+    });
+
+    return NextResponse.json({ message: "Quote request sent successfully!" }, { status: 200 });
   } catch (error) {
-    console.error('Error sending email:', error);
-    return NextResponse.json({ message: 'Failed to send quote request' }, { status: 500 });
+    console.error("Error sending quote emails:", error);
+    return NextResponse.json({ message: "Failed to send quote request." }, { status: 500 });
   }
 }
