@@ -25,6 +25,15 @@
   "dotenv": "^16.4.5",
   
     
+  "firebase": "^12.0.0",
+  
+    
+  "mongodb": "^6.17.0",
+  
+    
+  "mongoose": "^8.16.0",
+  
+    
   "next": "latest",
   
     

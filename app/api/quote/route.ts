@@ -1,59 +1,26 @@
-import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+// app/api/quote/route.ts
+import { NextResponse } from 'next/server';
+import { db } from '../../../lib/firebase';
+// if you're inside app/api/contact/route.ts
 
-export async function POST(req: Request) {
-  const { name, email, phone, message, serviceType } = await req.json();
+import { collection, addDoc } from 'firebase/firestore';
 
-  console.log('EMAIL_USER:', process.env.EMAIL_USER);
-  console.log('EMAIL_PASS set:', !!process.env.EMAIL_PASS);
-
-  // Setup Gmail transporter using SMTP explicitly
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // use TLS
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
+export async function POST(request: Request) {
   try {
-    // 1. Send mail to yourself
-    await transporter.sendMail({
-      from: `"Quote Form" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
-      subject: `New Quote Request from ${name}`,
-      html: `
-        <h2>Quote Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Service Type:</strong> ${serviceType}</p>
-        <p><strong>Message:</strong><br>${message}</p>
-      `,
+    const { name, email, phone, message, serviceType } = await request.json();
+
+    const docRef = await addDoc(collection(db, 'quotes'), {
+      name,
+      email,
+      phone,
+      message,
+      serviceType,
+      createdAt: new Date(),
     });
 
-    // 2. Send confirmation email to sender
-    await transporter.sendMail({
-      from: `"Your Company" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "We’ve received your quote request",
-      html: `
-        <p>Hi ${name},</p>
-        <p>Thank you for your interest in our <strong>${serviceType}</strong> services.</p>
-        <p>We’ve received your quote request and will get back to you shortly.</p>
-        <br />
-        <p>Best regards,<br>Your Company Name</p>
-      `,
-    });
-
-    return NextResponse.json({ message: "Quote request sent successfully!" }, { status: 200 });
-  } catch (error: any) {
-    console.error("Error sending quote emails:", error);
-    return NextResponse.json(
-      { message: "Failed to send quote request.", error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ id: docRef.id }, { status: 200 });
+  } catch (error) {
+    console.error("Error saving quote request:", error);
+    return NextResponse.json({ error: 'Failed to save quote request' }, { status: 500 });
   }
 }
