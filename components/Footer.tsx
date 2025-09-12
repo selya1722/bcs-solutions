@@ -76,7 +76,7 @@ const Footer = () => {
               </a>
             </div>
             <div>
-              <p>Phone: +94 77 710 9874</p>
+              <p>Phone: +94 123 4567</p>
               <p>Email: bcssolutions12@gmail.com</p>
             </div>
           </div>
