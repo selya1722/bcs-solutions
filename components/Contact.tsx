@@ -124,14 +124,14 @@ const Contact = () => {
               </p>
               <p>
                 <span className="font-medium">Phone:</span>{" "}
-                <a href="tel:+94777109874" className="text-blue-600 hover:underline">
-                  +94 77 710 9874
+                <a href="tel: +94120341567" className="text-blue-600 hover:underline">
+                  +94 120 341 567
                 </a>
               </p>
               <p>
                 <span className="font-medium">Emergency Line:</span>{" "}
-                <a href="tel:+94777109874" className="text-blue-600 hover:underline">
-                  +94 77 710 9874
+                <a href="tel: +94120341567" className="text-blue-600 hover:underline">
+                  +94 120 341 567
                 </a>
               </p>
               <p>
